@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Student Display</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+      integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+    <style>
+      thead {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        background-color: #00b556;
+      }
+    </style>
+  </head>
+  <body
+    class="min-h-screen p-6 bg-gradient-to-br from-[#ccf6e4] to-white font-sans"
+  >
+    <div class="max-w-7xl mx-auto bg-white rounded-2xl shadow-2xl p-8">
+      <!-- Header -->
+      <div class="flex flex-col sm:flex-row justify-between items-center mb-8">
+        <h2 class="text-3xl font-bold text-[#00B556] tracking-tight">
+          All Students
+        </h2>
+        <div class="flex flex-col sm:flex-row gap-4 mt-4 sm:mt-0">
+          <a
+            href="index.html"
+            class="bg-gray-500 hover:bg-gray-600 text-white py-2 px-6 rounded-full font-medium transition duration-300 shadow-md"
+          >
+            Back to Manager
+          </a>
+          <a
+            href="permission.html"
+            class="bg-[#00B556] hover:bg-[#009944] text-white py-2 px-6 rounded-full font-medium transition duration-300 shadow-md"
+          >
+            Permission Requests
+          </a>
+        </div>
+      </div>
+
+      <!-- Search Bar -->
+      <div class="mb-6">
+        <div class="relative">
+          <input
+            id="searchInput"
+            type="text"
+            placeholder="Search by name, email, or major..."
+            class="w-full p-4 pl-12 border border-gray-200 rounded-full focus:ring-2 focus:ring-[#00B556] focus:outline-none shadow-sm transition duration-300"
+          />
+          <i
+            class="fas fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"
+          ></i>
+        </div>
+      </div>
+
+      <!-- Students Table -->
+      <div
+        class="overflow-x-auto overflow-y-auto max-h-[500px] rounded-lg shadow-sm"
+      >
+        <table class="w-full border-collapse">
+          <thead>
+            <tr class="bg-[#00B556] text-white">
+              <th class="p-4 text-left font-semibold rounded-tl-lg">Image</th>
+              <th class="p-4 text-left font-semibold">Name</th>
+              <th class="p-4 text-left font-semibold">Age</th>
+              <th class="p-4 text-left font-semibold">Email</th>
+              <th class="p-4 text-left font-semibold">Major</th>
+              <th class="p-4 text-left font-semibold">Class</th>
+              <th class="p-4 text-left font-semibold rounded-tr-lg">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="studentTable"></tbody>
+        </table>
+      </div>
+
+      <!-- Score Modal -->
+      <div
+        id="scoreModal"
+        class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 transition-all duration-300 ease-in-out opacity-0 scale-90 pointer-events-none"
+      >
+        <div
+          class="bg-white p-8 rounded-2xl w-full max-w-lg relative shadow-2xl"
+        >
+          <button
+            onclick="closeScoreModal()"
+            class="absolute top-4 right-4 text-gray-600 hover:text-cream-800 text-2xl transition duration-300"
+          >
+            ×
+          </button>
+          <h3
+            id="scoreModalTitle"
+            class="text-2xl font-bold text-center text-[#00B556] mb-6"
+          >
+            Add Score
+          </h3>
+          <form id="scoreForm" class="space-y-5">
+            <div>
+              <input
+                id="scoreSubject"
+                type="text"
+                placeholder="Subject"
+                class="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#00B556] focus:outline-none transition duration-300"
+                required
+              />
+              <p
+                id="scoreSubjectError"
+                class="text-red-500 text-sm mt-1 hidden"
+              ></p>
+            </div>
+            <div>
+              <input
+                id="scoreValue"
+                type="number"
+                placeholder="Score (0-100)"
+                min="0"
+                max="100"
+                class="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#00B556] focus:outline-none transition duration-300"
+                required
+              />
+              <p
+                id="scoreValueError"
+                class="text-red-500 text-sm mt-1 hidden"
+              ></p>
+            </div>
+            <div>
+              <textarea
+                id="scoreCalculation"
+                placeholder="How was this score calculated?"
+                class="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#00B556] focus:outline-none transition duration-300"
+                rows="4"
+                required
+              ></textarea>
+              <p
+                id="scoreCalculationError"
+                class="text-red-500 text-sm mt-1 hidden"
+              ></p>
+            </div>
+            <button
+              type="submit"
+              class="w-full bg-[#00B556] hover:bg-[#009944] text-white py-3 rounded-lg font-medium transition duration-300 shadow-md"
+            >
+              Save Score
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Attendance Modal -->
+      <div
+        id="attendanceModal"
+        class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 transition-all duration-300 ease-in-out opacity-0 scale-90 pointer-events-none"
+      >
+        <div
+          class="bg-white p-8 rounded-2xl w-full max-w-lg relative shadow-2xl"
+        >
+          <button
+            onclick="closeAttendanceModal()"
+            class="absolute top-4 right-4 text-gray-600 hover:text-gray-800 text-2xl transition duration-300"
+          >
+            ×
+          </button>
+          <h3
+            id="attendanceModalTitle"
+            class="text-2xl font-bold text-center text-[#00B556] mb-6"
+          >
+            Add Attendance
+          </h3>
+          <form id="attendanceForm" class="space-y-5">
+            <div>
+              <input
+                id="attendanceDate"
+                type="date"
+                class="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#00B556] focus:outline-none transition duration-300"
+                required
+              />
+              <p
+                id="attendanceDateError"
+                class="text-red-500 text-sm mt-1 hidden"
+              ></p>
+            </div>
+            <div>
+              <select
+                id="attendanceStatus"
+                class="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#00B556] focus:outline-none transition duration-300"
+                required
+              >
+                <option value="present">Present</option>
+                <option value="absent">Absent</option>
+                <option value="late">Late</option>
+              </select>
+              <p
+                id="attendanceStatusError"
+                class="text-red-500 text-sm mt-1 hidden"
+              ></p>
+            </div>
+            <button
+              type="submit"
+              class="w-full bg-[#00B556] hover:bg-[#009944] text-white py-3 rounded-lg font-medium transition duration-300 shadow-md"
+            >
+              Save Attendance
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Student Details Modal -->
+      <div
+        id="detailsModal"
+        class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 transition-all duration-300 ease-in-out opacity-0 scale-90 pointer-events-none"
+      >
+        <div
+          class="bg-white p-8 rounded-2xl w-full max-w-lg relative shadow-2xl"
+        >
+          <button
+            onclick="closeDetailsModal()"
+            class="absolute top-4 right-4 text-gray-600 hover:text-gray-800 text-2xl transition duration-300"
+          >
+            ×
+          </button>
+          <h3 class="text-2xl font-bold text-center text-[#00B556] mb-6">
+            Student Details
+          </h3>
+          <div class="space-y-4 text-center">
+            <img
+              id="detailsImage"
+              src="https://via.placeholder.com/40"
+              class="w-24 h-24 rounded-full object-cover shadow-sm mx-auto"
+            />
+            <div>
+              <p class="text-gray-600">
+                <span class="font-semibold">Name:</span>
+                <span id="detailsName"></span>
+              </p>
+              <p class="text-gray-600">
+                <span class="font-semibold">Email:</span>
+                <span id="detailsEmail"></span>
+              </p>
+              <p class="text-gray-600">
+                <span class="font-semibold">Age:</span>
+                <span id="detailsAge"></span>
+              </p>
+              <p class="text-gray-600">
+                <span class="font-semibold">Major:</span>
+                <span id="detailsMajor"></span>
+              </p>
+              <p class="text-gray-600">
+                <span class="font-semibold">Class:</span>
+                <span id="detailsClass"></span>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // DOM Elements
+      const elements = {
+        studentTable: document.getElementById("studentTable"),
+        searchInput: document.getElementById("searchInput"),
+        scoreModal: document.getElementById("scoreModal"),
+        scoreForm: document.getElementById("scoreForm"),
+        scoreModalTitle: document.getElementById("scoreModalTitle"),
+        scoreInputs: {
+          subject: document.getElementById("scoreSubject"),
+          value: document.getElementById("scoreValue"),
+          calculation: document.getElementById("scoreCalculation"),
+        },
+        attendanceModal: document.getElementById("attendanceModal"),
+        attendanceForm: document.getElementById("attendanceForm"),
+        attendanceModalTitle: document.getElementById("attendanceModalTitle"),
+        attendanceInputs: {
+          date: document.getElementById("attendanceDate"),
+          status: document.getElementById("attendanceStatus"),
+        },
+        detailsModal: document.getElementById("detailsModal"),
+        detailsImage: document.getElementById("detailsImage"),
+        detailsName: document.getElementById("detailsName"),
+        detailsEmail: document.getElementById("detailsEmail"),
+        detailsAge: document.getElementById("detailsAge"),
+        detailsMajor: document.getElementById("detailsMajor"),
+        detailsClass: document.getElementById("detailsClass"),
+      };
+
+      let students = JSON.parse(localStorage.getItem("students")) || [];
+      let currentStudentIndex = null;
+      let currentScoreIndex = null;
+      let currentAttendanceIndex = null;
+      let filteredStudents = [...students];
+
+      // Validation Functions
+      const validateScoreInput = {
+        subject: (value) => {
+          if (typeof value !== "string" || value.trim().length === 0) {
+            return { valid: false, error: "Subject is required" };
+          }
+          return { valid: true };
+        },
+        value: (value) => {
+          const num = parseInt(value);
+          if (isNaN(num)) {
+            return { valid: false, error: "Please enter a valid score" };
+          }
+          if (num < 0 || num > 100) {
+            return { valid: false, error: "Score must be between 0 and 100" };
+          }
+          return { valid: true };
+        },
+        calculation: (value) => {
+          if (typeof value !== "string" || value.trim().length === 0) {
+            return {
+              valid: false,
+              error: "Calculation description is required",
+            };
+          }
+          return { valid: true };
+        },
+      };
+
+      const validateAttendanceInput = {
+        date: (value) => {
+          if (!value) {
+            return { valid: false, error: "Date is required" };
+          }
+          const date = new Date(value);
+          if (isNaN(date.getTime())) {
+            return { valid: false, error: "Please enter a valid date" };
+          }
+          return { valid: true };
+        },
+        status: (value) => {
+          if (!["present", "absent", "late"].includes(value)) {
+            return { valid: false, error: "Please select a valid status" };
+          }
+          return { valid: true };
+        },
+      };
+
+      function showError(inputId, show, message = "") {
+        const errorElement = document.getElementById(`${inputId}Error`);
+        if (errorElement) {
+          errorElement.textContent = message;
+          errorElement.classList.toggle("hidden", !show);
+        }
+      }
+
+      function validateScoreForm() {
+        let isValid = true;
+        Object.keys(elements.scoreInputs).forEach((key) => {
+          const input = elements.scoreInputs[key];
+          if (!input) return;
+          const value = input.value || "";
+          const result = validateScoreInput[key](value);
+          showError(
+            `score${key.charAt(0).toUpperCase() + key.slice(1)}`,
+            !result.valid,
+            result.error || ""
+          );
+          isValid = isValid && result.valid;
+        });
+        return isValid;
+      }
+
+      function validateAttendanceForm() {
+        let isValid = true;
+        Object.keys(elements.attendanceInputs).forEach((key) => {
+          const input = elements.attendanceInputs[key];
+          if (!input) return;
+          const value = input.value || "";
+          const result = validateAttendanceInput[key](value);
+          showError(
+            `attendance${key.charAt(0).toUpperCase() + key.slice(1)}`,
+            !result.valid,
+            result.error || ""
+          );
+          isValid = isValid && result.valid;
+        });
+        return isValid;
+      }
+
+      // Data Management
+      function saveStudents() {
+        localStorage.setItem("students", JSON.stringify(students));
+      }
+
+      // Search Filter
+      function filterStudents(query) {
+        query = query.toLowerCase().trim();
+        filteredStudents = students.filter(
+          (s) =>
+            s.name.toLowerCase().includes(query) ||
+            s.email.toLowerCase().includes(query) ||
+            s.major.toLowerCase().includes(query)
+        );
+        renderStudents();
+      }
+
+      // UI Rendering
+      function renderStudents() {
+        elements.studentTable.innerHTML = "";
+        if (filteredStudents.length === 0) {
+          elements.studentTable.innerHTML = `
+            <tr>
+              <td colspan="7" class="p-6 text-center text-gray-500 text-lg">No students found.</td>
+            </tr>
+          `;
+          return;
+        }
+
+        filteredStudents.forEach((s, i) => {
+          const row = document.createElement("tr");
+          row.className =
+            "border-b bg-white hover:bg-gray-50 hover:-translate-y-0.5 transition-transform duration-200";
+          row.innerHTML = `
+            <td class="p-4">
+              <img src="${
+                s.image || "https://via.placeholder.com/40"
+              }" class="w-12 h-12 rounded-full object-cover shadow-sm" />
+            </td>
+            <td class="p-4 font-medium text-gray-800">${s.name}</td>
+            <td class="p-4 text-gray-600">${s.age}</td>
+            <td class="p-4 text-gray-600">${s.email}</td>
+            <td class="p-4 text-gray-600">${s.major}</td>
+            <td class="p-4 text-gray-600">${s.class}</td>
+            <td class="p-4 flex gap-3">
+              <button onclick="openScoreModal(${i})" class="text-blue-600 hover:text-blue-800 transition duration-300">
+                <i class="fas fa-plus"></i> Score
+              </button>
+              <button onclick="openAttendanceModal(${i})" class="text-green-600 hover:text-green-800 transition duration-300">
+                <i class="fas fa-calendar-check"></i> Attendance
+              </button>
+              <button onclick="openDetailsModal(${i})" class="text-orange-600 hover:text-orange-800 transition duration-300">
+                <i class="fas fa-eye"></i> View
+              </button>
+            </td>
+          `;
+          // Add Scores and Attendance Details
+          const detailsRow = document.createElement("tr");
+          detailsRow.className = `details-${i} max-h-0 overflow-hidden transition-all duration-300`;
+          detailsRow.innerHTML = `
+            <td colspan="7" class="p-6 bg-gray-50">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <h4 class="font-semibold text-[#00B556] mb-2">Scores</h4>
+                  <ul class="list-disc pl-5 text-gray-700">
+                    ${
+                      s.scores
+                        ?.map(
+                          (score, scoreIndex) => `
+                      <li>
+                        ${score.subject}: ${score.score} 
+                        <span class="text-gray-500">(Calculation: ${score.calculation})</span>
+                        <button onclick="editScore(${i}, ${scoreIndex})" class="ml-2 text-blue-600 hover:text-blue-800">
+                          <i class="fas fa-edit"></i>
+                        </button>
+                      </li>
+                    `
+                        )
+                        .join("") || "<li>No scores recorded.</li>"
+                    }
+                  </ul>
+                </div>
+                <div>
+                  <h4 class="font-semibold text-[#00B556] mb-2">Attendance</h4>
+                  <ul class="list-disc pl-5 text-gray-700">
+                    ${
+                      s.attendance
+                        ?.map(
+                          (att, attIndex) => `
+                      <li>
+                        ${att.date}: 
+                        <span class="${
+                          att.status === "present"
+                            ? "text-green-600"
+                            : att.status === "absent"
+                            ? "text-red-600"
+                            : "text-yellow-600"
+                        }">${
+                            att.status.charAt(0).toUpperCase() +
+                            att.status.slice(1)
+                          }</span>
+                        <button onclick="editAttendance(${i}, ${attIndex})" class="ml-2 text-blue-600 hover:text-blue-800">
+                          <i class="fas fa-edit"></i>
+                        </button>
+                      </li>
+                    `
+                        )
+                        .join("") || "<li>No attendance recorded.</li>"
+                    }
+                  </ul>
+                </div>
+              </div>
+            </td>
+          `;
+          elements.studentTable.appendChild(row);
+          elements.studentTable.appendChild(detailsRow);
+        });
+      }
+
+      // Modal Handlers
+      function openScoreModal(index, scoreIndex = null) {
+        currentStudentIndex = students.findIndex(
+          (s) => s === filteredStudents[index]
+        );
+        currentScoreIndex = scoreIndex;
+        elements.scoreModal.classList.remove(
+          "opacity-0",
+          "scale-90",
+          "pointer-events-none"
+        );
+        elements.scoreModal.classList.add(
+          "opacity-100",
+          "scale-100",
+          "pointer-events-auto"
+        );
+        elements.scoreForm.reset();
+        Object.keys(elements.scoreInputs).forEach((key) =>
+          showError(
+            `score${key.charAt(0).toUpperCase() + key.slice(1)}`,
+            false,
+            ""
+          )
+        );
+        if (scoreIndex !== null) {
+          elements.scoreModalTitle.textContent = "Edit Score";
+          const score = students[currentStudentIndex].scores[scoreIndex];
+          elements.scoreInputs.subject.value = score.subject;
+          elements.scoreInputs.value.value = score.score;
+          elements.scoreInputs.calculation.value = score.calculation;
+        } else {
+          elements.scoreModalTitle.textContent = "Add Score";
+        }
+      }
+
+      function closeScoreModal() {
+        elements.scoreModal.classList.remove(
+          "opacity-100",
+          "scale-100",
+          "pointer-events-auto"
+        );
+        elements.scoreModal.classList.add("opacity-0", "scale-90");
+        setTimeout(() => {
+          elements.scoreModal.classList.add("pointer-events-none");
+        }, 300);
+        currentStudentIndex = null;
+        currentScoreIndex = null;
+      }
+
+      function openAttendanceModal(index, attendanceIndex = null) {
+        currentStudentIndex = students.findIndex(
+          (s) => s === filteredStudents[index]
+        );
+        currentAttendanceIndex = attendanceIndex;
+        elements.attendanceModal.classList.remove(
+          "opacity-0",
+          "scale-90",
+          "pointer-events-none"
+        );
+        elements.attendanceModal.classList.add(
+          "opacity-100",
+          "scale-100",
+          "pointer-events-auto"
+        );
+        elements.attendanceForm.reset();
+        Object.keys(elements.attendanceInputs).forEach((key) =>
+          showError(
+            `attendance${key.charAt(0).toUpperCase() + key.slice(1)}`,
+            false,
+            ""
+          )
+        );
+        if (attendanceIndex !== null) {
+          elements.attendanceModalTitle.textContent = "Edit Attendance";
+          const attendance =
+            students[currentStudentIndex].attendance[attendanceIndex];
+          elements.attendanceInputs.date.value = attendance.date;
+          elements.attendanceInputs.status.value = attendance.status;
+        } else {
+          elements.attendanceModalTitle.textContent = "Add Attendance";
+        }
+      }
+
+      function closeAttendanceModal() {
+        elements.attendanceModal.classList.remove(
+          "opacity-100",
+          "scale-100",
+          "pointer-events-auto"
+        );
+        elements.attendanceModal.classList.add("opacity-0", "scale-90");
+        setTimeout(() => {
+          elements.attendanceModal.classList.add("pointer-events-none");
+        }, 300);
+        currentStudentIndex = null;
+        currentAttendanceIndex = null;
+      }
+
+      function openDetailsModal(index) {
+        currentStudentIndex = students.findIndex(
+          (s) => s === filteredStudents[index]
+        );
+        const student = students[currentStudentIndex];
+        elements.detailsImage.src =
+          student.image || "https://via.placeholder.com/40";
+        elements.detailsName.textContent = student.name;
+        elements.detailsEmail.textContent = student.email;
+        elements.detailsAge.textContent = student.age;
+        elements.detailsMajor.textContent = student.major;
+        elements.detailsClass.textContent = student.class;
+        elements.detailsModal.classList.remove(
+          "opacity-0",
+          "scale-90",
+          "pointer-events-none"
+        );
+        elements.detailsModal.classList.add(
+          "opacity-100",
+          "scale-100",
+          "pointer-events-auto"
+        );
+      }
+
+      function closeDetailsModal() {
+        elements.detailsModal.classList.remove(
+          "opacity-100",
+          "scale-100",
+          "pointer-events-auto"
+        );
+        elements.detailsModal.classList.add("opacity-0", "scale-90");
+        setTimeout(() => {
+          elements.detailsModal.classList.add("pointer-events-none");
+        }, 300);
+        currentStudentIndex = null;
+      }
+
+      // Edit Handlers
+      function editScore(studentIndex, scoreIndex) {
+        openScoreModal(studentIndex, scoreIndex);
+      }
+
+      function editAttendance(studentIndex, attendanceIndex) {
+        openAttendanceModal(studentIndex, attendanceIndex);
+      }
+
+      // Event Handlers
+      elements.scoreForm.onsubmit = function (e) {
+        e.preventDefault();
+        if (!validateScoreForm()) return;
+
+        const { subject, value, calculation } = elements.scoreInputs;
+        const score = {
+          subject: subject.value.trim(),
+          score: parseInt(value.value),
+          calculation: calculation.value.trim(),
+        };
+        students[currentStudentIndex].scores =
+          students[currentStudentIndex].scores || [];
+        if (currentScoreIndex !== null) {
+          students[currentStudentIndex].scores[currentScoreIndex] = score;
+        } else {
+          students[currentStudentIndex].scores.push(score);
+        }
+        saveStudents();
+        filterStudents(elements.searchInput.value);
+        closeScoreModal();
+      };
+
+      elements.attendanceForm.onsubmit = function (e) {
+        e.preventDefault();
+        if (!validateAttendanceForm()) return;
+
+        const { date, status } = elements.attendanceInputs;
+        const attendance = {
+          date: date.value,
+          status: status.value,
+        };
+        students[currentStudentIndex].attendance =
+          students[currentStudentIndex].attendance || [];
+        if (currentAttendanceIndex !== null) {
+          students[currentStudentIndex].attendance[currentAttendanceIndex] =
+            attendance;
+        } else {
+          students[currentStudentIndex].attendance.push(attendance);
+        }
+        saveStudents();
+        filterStudents(elements.searchInput.value);
+        closeAttendanceModal();
+      };
+
+      // Search Handler
+      elements.searchInput.addEventListener("input", (e) => {
+        filterStudents(e.target.value);
+      });
+
+      // Real-Time Validation
+      function setupRealTimeValidation() {
+        Object.keys(elements.scoreInputs).forEach((key) => {
+          const input = elements.scoreInputs[key];
+          if (!input) return;
+          input.addEventListener("input", () => {
+            const value = input.value || "";
+            const result = validateScoreInput[key](value);
+            showError(
+              `score${key.charAt(0).toUpperCase() + key.slice(1)}`,
+              !result.valid,
+              result.error || ""
+            );
+          });
+        });
+        Object.keys(elements.attendanceInputs).forEach((key) => {
+          const input = elements.attendanceInputs[key];
+          if (!input) return;
+          input.addEventListener("input", () => {
+            const value = input.value || "";
+            const result = validateAttendanceInput[key](value);
+            showError(
+              `attendance${key.charAt(0).toUpperCase() + key.slice(1)}`,
+              !result.valid,
+              result.error || ""
+            );
+          });
+        });
+      }
+
+      // Initialize
+      setupRealTimeValidation();
+      renderStudents();
+    </script>
+  </body>
+</html>

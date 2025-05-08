@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Student Manager</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+      integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+  </head>
+  <body class="min-h-screen p-6 bg-gradient-to-br from-[#ccf6e4] to-white">
+    <div
+      class="max-w-7xl mx-auto bg-white rounded-xl shadow-xl grid grid-cols-1 md:grid-cols-3 overflow-hidden"
+    >
+      <!-- Left Panel: Form -->
+      <div class="bg-white p-6 border-r">
+        <img
+          src="./photo/logo.png"
+          alt="Setec"
+          class="w-[400px] mx-auto mb-10"
+        />
+        <h2 class="text-2xl font-semibold text-[#00B556] mb-4">
+          Add / Edit Student
+        </h2>
+        <form id="studentForm" class="space-y-4">
+          <div>
+            <input
+              id="name"
+              type="text"
+              placeholder="Name"
+              class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-[#00B556] focus:border-transparent transition"
+              required
+            />
+            <p id="nameError" class="text-red-500 text-sm mt-1 hidden"></p>
+          </div>
+          <div>
+            <input
+              id="age"
+              type="number"
+              placeholder="Age"
+              min="1"
+              class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-[#00B556] focus:border-transparent transition"
+              required
+            />
+            <p id="ageError" class="text-red-500 text-sm mt-1 hidden"></p>
+          </div>
+          <div>
+            <input
+              id="email"
+              type="email"
+              placeholder="Email"
+              class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-[#00B556] focus:border-transparent transition"
+              required
+            />
+            <p id="emailError" class="text-red-500 text-sm mt-1 hidden"></p>
+          </div>
+          <div>
+            <input
+              id="major"
+              type="text"
+              placeholder="Major"
+              class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-[#00B556] focus:border-transparent transition"
+              required
+            />
+            <p id="majorError" class="text-red-500 text-sm mt-1 hidden"></p>
+          </div>
+          <div>
+            <input
+              id="class"
+              type="text"
+              placeholder="Class"
+              class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-[#00B556] focus:border-transparent transition"
+              required
+            />
+            <p id="classError" class="text-red-500 text-sm mt-1 hidden"></p>
+          </div>
+          <input
+            id="image"
+            type="file"
+            accept="image/*"
+            class="w-full p-3 border rounded-lg file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-[#00B556] file:text-white hover:file:bg-[#009944] transition"
+          />
+          <img
+            id="preview"
+            src=""
+            class="hidden w-24 h-24 object-cover rounded-full mx-auto mt-2 ring-2 ring-[#00B556]"
+          />
+          <button
+            type="submit"
+            class="w-full bg-[#00B556] hover:bg-[#009944] text-white py-2 rounded-lg transition"
+          >
+            Save Student
+          </button>
+          <button
+            id="cancelEdit"
+            type="button"
+            class="hidden w-full bg-gray-400 hover:bg-gray-500 text-white py-2 rounded-lg transition"
+          >
+            Cancel Edit
+          </button>
+        </form>
+      </div>
+
+      <!-- Right Panel: Student List -->
+      <div class="col-span-2 bg-gray-50 p-6">
+        <div
+          class="flex flex-col md:flex-row md:items-center justify-between mb-4 gap-4"
+        >
+          <h2 class="text-2xl font-semibold text-[#00B556]">Students</h2>
+          <div class="flex w-full md:w-1/2 gap-2">
+            <select
+              id="searchType"
+              class="p-3 border rounded-lg bg-white focus:ring-2 focus:ring-[#00B556] focus:border-transparent"
+            >
+              <option value="name">Name</option>
+              <option value="email">Email</option>
+              <option value="major">Major</option>
+              <option value="class">Class</option>
+            </select>
+            <input
+              id="search"
+              type="text"
+              placeholder="Search..."
+              class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-[#00B556] focus:border-transparent transition"
+            />
+          </div>
+        </div>
+        <div class="mb-4">
+          <a
+            href="display.html"
+            class="inline-block bg-[#00B556] hover:bg-[#009944] text-white py-2 px-4 rounded-lg transition"
+          >
+            View All Students
+          </a>
+        </div>
+        <div
+          id="studentList"
+          class="space-y-4 max-h-[500px] overflow-y-auto pr-2"
+        ></div>
+      </div>
+    </div>
+
+    <!-- Modal -->
+    <div
+      id="modal"
+      class="fixed inset-0 hidden bg-black bg-opacity-50 flex items-center justify-center z-50"
+    >
+      <div
+        class="bg-white p-8 rounded-xl w-full max-w-md relative shadow-2xl transform transition-all"
+      >
+        <button
+          onclick="closeModal()"
+          class="absolute top-4 right-4 text-gray-600 hover:text-gray-800 text-2xl transition"
+        >
+          ×
+        </button>
+        <img
+          id="modalImg"
+          src=""
+          class="w-32 h-32 object-cover rounded-full mx-auto mb-4 ring-2 ring-[#00B556]"
+        />
+        <h3
+          class="text-xl font-bold text-center text-[#00B556]"
+          id="modalName"
+        ></h3>
+        <p class="text-center text-gray-600">
+          <span id="modalAge"></span> years old
+        </p>
+        <p class="text-center text-gray-600" id="modalEmail"></p>
+        <p class="text-center text-gray-600" id="modalMajor"></p>
+        <p class="text-center text-gray-600" id="modalClass"></p>
+      </div>
+    </div>
+
+    <script>
+      // DOM Elements
+      const elements = {
+        form: document.getElementById("studentForm"),
+        inputs: {
+          name: document.getElementById("name"),
+          age: document.getElementById("age"),
+          email: document.getElementById("email"),
+          major: document.getElementById("major"),
+          class: document.getElementById("class"),
+          image: document.getElementById("image"),
+        },
+        preview: document.getElementById("preview"),
+        cancelEditBtn: document.getElementById("cancelEdit"),
+        studentList: document.getElementById("studentList"),
+        search: document.getElementById("search"),
+        searchType: document.getElementById("searchType"),
+        modal: {
+          container: document.getElementById("modal"),
+          name: document.getElementById("modalName"),
+          age: document.getElementById("modalAge"),
+          email: document.getElementById("modalEmail"),
+          major: document.getElementById("modalMajor"),
+          class: document.getElementById("modalClass"),
+          img: document.getElementById("modalImg"),
+        },
+      };
+
+      let students = JSON.parse(localStorage.getItem("students")) || [];
+      let editingIndex = null;
+
+      // Validation Functions
+      const validateInput = {
+        name: (value) => {
+          if (typeof value !== "string" || value.trim().length === 0) {
+            return { valid: false, error: "Name is required" };
+          }
+          if (!/^[a-zA-Z\s]+$/.test(value.trim())) {
+            return {
+              valid: false,
+              error: "Name can only contain letters and spaces",
+            };
+          }
+          return { valid: true };
+        },
+        age: (value) => {
+          const num = parseInt(value);
+          if (isNaN(num) || num <= 0) {
+            return { valid: false, error: "Please enter a valid age" };
+          }
+          if (num < 1 || num > 120) {
+            return { valid: false, error: "Age must be between 1 and 120" };
+          }
+          return { valid: true };
+        },
+        email: (value) => {
+          if (typeof value !== "string" || value.trim().length === 0) {
+            return { valid: false, error: "Email is required" };
+          }
+          if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim())) {
+            return { valid: false, error: "Please enter a valid email" };
+          }
+          return { valid: true };
+        },
+        major: (value) => {
+          if (typeof value !== "string" || value.trim().length === 0) {
+            return { valid: false, error: "Major is required" };
+          }
+          if (!/^[a-zA-Z\s]+$/.test(value.trim())) {
+            return {
+              valid: false,
+              error: "Major can only contain letters and spaces",
+            };
+          }
+          return { valid: true };
+        },
+        class: (value) => {
+          if (typeof value !== "string" || value.trim().length === 0) {
+            return { valid: false, error: "Class is required" };
+          }
+          if (!/^[a-zA-Z0-9\s]+$/.test(value.trim())) {
+            return {
+              valid: false,
+              error: "Class can only contain letters, numbers, and spaces",
+            };
+          }
+          return { valid: true };
+        },
+      };
+
+      function showError(inputId, show, message = "") {
+        const errorElement = document.getElementById(`${inputId}Error`);
+        if (errorElement) {
+          errorElement.textContent = message;
+          errorElement.classList.toggle("hidden", !show);
+        }
+      }
+
+      function validateForm() {
+        let isValid = true;
+        Object.keys(elements.inputs).forEach((key) => {
+          if (key !== "image") {
+            const input = elements.inputs[key];
+            if (!input) {
+              console.error(`Input element for ${key} not found`);
+              return;
+            }
+            const value = input.value || "";
+            const result = validateInput[key](value);
+            showError(key, !result.valid, result.error || "");
+            isValid = isValid && result.valid;
+          }
+        });
+        return isValid;
+      }
+
+      // Real-Time Validation Setup
+      function setupRealTimeValidation() {
+        Object.keys(elements.inputs).forEach((key) => {
+          if (key !== "image") {
+            const input = elements.inputs[key];
+            if (!input) {
+              console.error(`Input element for ${key} not found`);
+              return;
+            }
+            input.addEventListener("input", () => {
+              const value = input.value || "";
+              const result = validateInput[key](value);
+              showError(key, !result.valid, result.error || "");
+            });
+          }
+        });
+      }
+
+      // Data Management
+      function saveStudents() {
+        localStorage.setItem("students", JSON.stringify(students));
+      }
+
+      function submitStudent(name, age, email, major, className, image) {
+        const student = {
+          name,
+          age,
+          email,
+          major,
+          class: className,
+          image,
+          scores: [], // Initialize empty scores array
+          attendance: [], // Initialize empty attendance array
+        };
+        if (editingIndex !== null) {
+          students[editingIndex] = student;
+          editingIndex = null;
+          elements.cancelEditBtn.classList.add("hidden");
+        } else {
+          students.push(student);
+        }
+        saveStudents();
+        renderStudents();
+        resetForm();
+      }
+
+      // UI Rendering
+      function renderStudents(data = students) {
+        elements.studentList.innerHTML = "";
+        if (data.length === 0) {
+          elements.studentList.innerHTML =
+            '<p class="text-gray-500 text-center">No students found.</p>';
+          return;
+        }
+
+        data.forEach((s, i) => {
+          const div = document.createElement("div");
+          div.className =
+            "flex items-center justify-between border p-4 rounded-lg hover:shadow-md transition bg-white";
+          div.innerHTML = `
+            <div class="flex items-center gap-4">
+              <img src="${
+                s.image || "https://via.placeholder.com/56"
+              }" class="w-14 h-14 rounded-full object-cover ring-1 ring-gray-200" />
+              <div>
+                <p class="font-bold text-gray-800">${s.name}</p>
+                <p class="text-sm text-gray-600">${s.email}</p>
+              </div>
+            </div>
+            <div class="flex gap-3 items-center">
+              <button onclick="viewStudent(${i})" class="text-blue-600 hover:text-blue-800 transition">
+                <i class="fas fa-eye"></i>
+              </button>
+              <button onclick="editStudent(${i})" class="text-green-600 hover:text-green-800 transition">
+                <i class="fas fa-edit"></i>
+              </button>
+              <button onclick="deleteStudent(${i})" class="text-red-600 hover:text-red-800 transition">
+                <i class="fas fa-trash-alt"></i>
+              </button>
+            </div>
+          `;
+          elements.studentList.appendChild(div);
+        });
+      }
+
+      // Event Handlers
+      elements.form.onsubmit = function (e) {
+        e.preventDefault();
+        if (!validateForm()) return;
+
+        const {
+          name,
+          age,
+          email,
+          major,
+          class: classInput,
+          image,
+        } = elements.inputs;
+        const file = image.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = (e) =>
+            submitStudent(
+              name.value.trim(),
+              parseInt(age.value),
+              email.value.trim(),
+              major.value.trim(),
+              classInput.value.trim(),
+              e.target.result
+            );
+          reader.readAsDataURL(file);
+        } else {
+          submitStudent(
+            name.value.trim(),
+            parseInt(age.value),
+            email.value.trim(),
+            major.value.trim(),
+            classInput.value.trim(),
+            elements.preview.src || ""
+          );
+        }
+      };
+
+      elements.inputs.image.onchange = function () {
+        const file = this.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            elements.preview.src = e.target.result;
+            elements.preview.classList.remove("hidden");
+          };
+          reader.readAsDataURL(file);
+        }
+      };
+
+      function resetForm() {
+        elements.form.reset();
+        elements.preview.classList.add("hidden");
+        Object.keys(elements.inputs).forEach((key) =>
+          showError(key, false, "")
+        );
+      }
+
+      function editStudent(index) {
+        const s = students[index];
+        console.log("Editing student:", s);
+        elements.inputs.name.value = s.name || "";
+        elements.inputs.age.value = s.age || "";
+        elements.inputs.email.value = s.email || "";
+        elements.inputs.major.value = s.major || "";
+        elements.inputs.class.value = s.class || "";
+        elements.preview.src = s.image || "";
+        elements.preview.classList.toggle("hidden", !s.image);
+        editingIndex = index;
+        elements.cancelEditBtn.classList.remove("hidden");
+        // Validate inputs immediately after filling for edit
+        Object.keys(elements.inputs).forEach((key) => {
+          if (key !== "image") {
+            const input = elements.inputs[key];
+            const value = input.value || "";
+            const result = validateInput[key](value);
+            showError(key, !result.valid, result.error || "");
+          }
+        });
+      }
+
+      elements.cancelEditBtn.onclick = function () {
+        resetForm();
+        editingIndex = null;
+        elements.cancelEditBtn.classList.add("hidden");
+      };
+
+      function deleteStudent(index) {
+        if (confirm("Are you sure you want to delete this student?")) {
+          students.splice(index, 1);
+          saveStudents();
+          renderStudents();
+        }
+      }
+
+      function viewStudent(index) {
+        const s = students[index];
+        console.log("Viewing student:", s);
+        elements.modal.name.textContent = s.name || "";
+        elements.modal.age.textContent = s.age || "";
+        elements.modal.email.textContent = s.email || "";
+        elements.modal.major.textContent = `Major: ${s.major || ""}`;
+        elements.modal.class.textContent = `Class: ${s.class || ""}`;
+        elements.modal.img.src = s.image || "https://via.placeholder.com/128";
+        elements.modal.container.classList.remove("hidden");
+      }
+
+      function closeModal() {
+        elements.modal.container.classList.add("hidden");
+      }
+
+      elements.search.oninput = function () {
+        const query = this.value.toLowerCase();
+        const searchType = elements.searchType.value;
+        const filtered = students.filter((s) =>
+          (s[searchType] || "").toLowerCase().includes(query)
+        );
+        renderStudents(filtered);
+      };
+
+      // Initialize
+      setupRealTimeValidation();
+      renderStudents();
+    </script>
+  </body>
+</html>

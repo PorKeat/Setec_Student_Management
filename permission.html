@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Permission Requests</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+      integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSB7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+  </head>
+  <body class="min-h-screen p-6 bg-gradient-to-br from-[#ccf6e4] to-white">
+    <div class="max-w-7xl mx-auto bg-white rounded-xl shadow-xl p-6">
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-semibold text-[#00B556]">
+          Permission Requests
+        </h2>
+        <div class="flex gap-4">
+          <a
+            href="index.html"
+            class="bg-gray-400 hover:bg-gray-500 text-white py-2 px-4 rounded-lg transition"
+          >
+            Back to Manager
+          </a>
+          <a
+            href="display.html"
+            class="bg-[#00B556] hover:bg-[#009944] text-white py-2 px-4 rounded-lg transition"
+          >
+            View Students
+          </a>
+        </div>
+      </div>
+
+      <!-- Permission Form -->
+      <div class="mb-8">
+        <h3 class="text-xl font-semibold text-[#00B556] mb-4">
+          Request Permission
+        </h3>
+        <form id="permissionForm" class="space-y-4">
+          <div>
+            <input
+              id="studentName"
+              type="text"
+              placeholder="Student Name"
+              class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-[#00B556]"
+              required
+            />
+            <p
+              id="studentNameError"
+              class="text-red-500 text-sm mt-1 hidden"
+            ></p>
+          </div>
+          <div>
+            <textarea
+              id="reason"
+              placeholder="Reason for Permission"
+              class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-[#00B556]"
+              rows="4"
+              required
+            ></textarea>
+            <p id="reasonError" class="text-red-500 text-sm mt-1 hidden"></p>
+          </div>
+          <div>
+            <input
+              id="permissionDate"
+              type="date"
+              class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-[#00B556]"
+              required
+            />
+            <p
+              id="permissionDateError"
+              class="text-red-500 text-sm mt-1 hidden"
+            ></p>
+          </div>
+          <button
+            type="submit"
+            class="w-full bg-[#00B556] hover:bg-[#009944] text-white py-2 rounded-lg transition"
+          >
+            Submit Request
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <script>
+      // DOM Elements
+      const elements = {
+        permissionForm: document.getElementById("permissionForm"),
+        inputs: {
+          studentName: document.getElementById("studentName"),
+          reason: document.getElementById("reason"),
+          permissionDate: document.getElementById("permissionDate"),
+        },
+      };
+
+      // Telegram Bot Configuration
+      const telegramConfig = {
+        botToken: "7782036550:AAG3VIgBDf1VE6BdhGJrdcw9J1Av1F7ihms",
+        chatId: "-1002694805849", // Replace with your channel's Chat ID (e.g., @MyChannel or -1001234567890)
+      };
+
+      // Validation Functions
+      const validateInput = {
+        studentName: (value) => {
+          if (typeof value !== "string" || value.trim().length === 0) {
+            return { valid: false, error: "Student name is required" };
+          }
+          if (!/^[a-zA-Z\s]+$/.test(value.trim())) {
+            return {
+              valid: false,
+              error: "Name can only contain letters and spaces",
+            };
+          }
+          return { valid: true };
+        },
+        reason: (value) => {
+          if (typeof value !== "string" || value.trim().length === 0) {
+            return { valid: false, error: "Reason is required" };
+          }
+          return { valid: true };
+        },
+        permissionDate: (value) => {
+          if (!value) {
+            return { valid: false, error: "Date is required" };
+          }
+          const date = new Date(value);
+          if (isNaN(date.getTime())) {
+            return { valid: false, error: "Please enter a valid date" };
+          }
+          return { valid: true };
+        },
+      };
+
+      function showError(inputId, show, message = "") {
+        const errorElement = document.getElementById(`${inputId}Error`);
+        if (errorElement) {
+          errorElement.textContent = message;
+          errorElement.classList.toggle("hidden", !show);
+        }
+      }
+
+      function validateForm() {
+        let isValid = true;
+        Object.keys(elements.inputs).forEach((key) => {
+          const input = elements.inputs[key];
+          if (!input) return;
+          const value = input.value || "";
+          const result = validateInput[key](value);
+          showError(key, !result.valid, result.error || "");
+          isValid = isValid && result.valid;
+        });
+        return isValid;
+      }
+
+      // Send to Telegram
+      async function sendToTelegram(permission) {
+        const { studentName, reason, date } = permission;
+        const message =
+          `New Permission Request:\n\n` +
+          `Student: ${studentName}\n` +
+          `Reason: ${reason}\n` +
+          `Date: ${date}`;
+        const url = `https://api.telegram.org/bot${telegramConfig.botToken}/sendMessage`;
+        const params = {
+          chat_id: telegramConfig.chatId,
+          text: message,
+          parse_mode: "HTML",
+        };
+
+        try {
+          const response = await fetch(url, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(params),
+          });
+          const data = await response.json();
+          if (!data.ok) {
+            throw new Error(
+              data.description || "Failed to send message to Telegram"
+            );
+          }
+          console.log("Message sent to Telegram successfully");
+          alert("Permission request sent to Telegram successfully!");
+        } catch (error) {
+          console.error("Error sending to Telegram:", error.message);
+          alert(
+            "Failed to send permission request to Telegram. Please try again."
+          );
+        }
+      }
+
+      // Event Handlers
+      elements.permissionForm.onsubmit = async function (e) {
+        e.preventDefault();
+        if (!validateForm()) return;
+
+        const { studentName, reason, permissionDate } = elements.inputs;
+        const permission = {
+          studentName: studentName.value.trim(),
+          reason: reason.value.trim(),
+          date: permissionDate.value,
+        };
+
+        // Send to Telegram
+        await sendToTelegram(permission);
+
+        // Reset form
+        elements.permissionForm.reset();
+        Object.keys(elements.inputs).forEach((key) =>
+          showError(key, false, "")
+        );
+      };
+
+      // Real-Time Validation
+      function setupRealTimeValidation() {
+        Object.keys(elements.inputs).forEach((key) => {
+          const input = elements.inputs[key];
+          if (!input) return;
+          input.addEventListener("input", () => {
+            const value = input.value || "";
+            const result = validateInput[key](value);
+            showError(key, !result.valid, result.error || "");
+          });
+        });
+      }
+
+      // Initialize
+      setupRealTimeValidation();
+    </script>
+  </body>
+</html>
