@@ -132,7 +132,7 @@
             <div>
               <textarea
                 id="scoreCalculation"
-                placeholder="How was this score calculated?"
+                placeholder="Score description"
                 class="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#00B556] focus:outline-none transition duration-300"
                 rows="4"
                 required
@@ -481,7 +481,7 @@
                           (score, scoreIndex) => `
                       <li>
                         ${score.subject}: ${score.score} 
-                        <span class="text-gray-500">(Calculation: ${score.calculation})</span>
+                        <span class="text-gray-500">(${score.calculation})</span>
                         <button onclick="editScore(${i}, ${scoreIndex})" class="ml-2 text-blue-600 hover:text-blue-800">
                           <i class="fas fa-edit"></i>
                         </button>
